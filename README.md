@@ -42,7 +42,7 @@ this is done.
 
 
 ## Installation:
-	pip install TimeCellAnalysys
+	pip install TimeCellAnalysis
 
 
 or
