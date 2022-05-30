@@ -5,8 +5,12 @@
 
 This repository contains the Matlab, Python and related files for 
 Time Cell Analysis,
-Kambadur Ananthamurthy and U.S. Bhalla, in preparation.
 
+This is from a forthcoming paper: 
+
+Synthetic Data Resource and Benchmarks for Time Cell Analysis and Detection Algorithms
+*K. Ananthamurthy and U.S. Bhalla,* 
+in preparation.
 
 ## Description
 Time cells are neurons whose activity encodes the time since a reference 

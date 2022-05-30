@@ -6,7 +6,11 @@
 This repository contains the Matlab, Python and related files for 
 Time Cell Analysis,
 
-Kambadur Ananthamurthy and U.S. Bhalla, in preparation.
+This is from a forthcoming paper: 
+
+Synthetic Data Resource and Benchmarks for Time Cell Analysis and Detection Algorithms
+*K. Ananthamurthy and U.S. Bhalla,* 
+in preparation.
 
 The current directory, **TcPy**, has the Python demos and code (including 
 pybind11/C++ code) for the tc module for Python. 
@@ -15,7 +19,7 @@ pybind11/C++ code) for the tc module for Python.
 ---------
 For the impatient, once you have installed the files, here are some things
 to do from the TcPy directory. In the examples below, the input data files
-are Matlab version 7.3 files, organized as '[dataset][frame#][trial#][cell#]'
+are Matlab version 7.3 files, organized as `[dataset][frame#][trial#][cell#]`
 These files can be generated from data analysis code, or from the synthetic
 data generation programs developed in this project.
 
@@ -41,7 +45,7 @@ Dataset    #SigMean    #sigBoot     #sigBoth
 ...
 ```
 
-Similarly for *r2b_demo.py*
+Similar output is obtained from *r2b_demo.py*
 
 
 If your source data file is generated from the synthetic data program, you 
@@ -184,31 +188,31 @@ Functions:
 
 > CellScore tc.tiScore( data, analysisParams, tiAnalysisParams )
 
-	This performs the analysis of Mau et al 2018. It effectively handles
-	three classifications of time cells, all involving bootstrapping
+This performs the analysis of Mau et al 2018. It effectively handles
+three classifications of time cells, all involving bootstrapping
 
 	- **Returns**: an array of CellScore structures. See below.
 	- **Arguments**: 
 		data: Python Array of doubles organized as
 		data[frameIdx][trailIdx][cellIdx]
-		- analysisParams: AnalysisParams data structure, see below
-		- tiAnalysisParams: TiAnalysisParams data structure, see below.
+	- analysisParams: AnalysisParams data structure, see below
+	- tiAnalysisParams: TiAnalysisParams data structure, see below.
 
 ### r2bScore
 
 > CellScore tc.r2bScore( data, analysisParams, threshold, percentile )
-	This performs the analysis of Modi et al 2014. It handles two
-	classification methods, one by thresholding and the other by 
-	bootstrapping.
-	**Returns**: an array of CellScore structures. See below.
-	**Arguments**: 
+This performs the analysis of Modi et al 2014. It handles two
+classification methods, one by thresholding and the other by bootstrapping.
+
+	- **Returns**: an array of CellScore structures. See below.
+	- **Arguments**: 
 		data: Python Array of doubles organized as
 		data[frameIdx][trailIdx][cellIdx]
 
-		analysisParams: AnalysisParams data structure, see below
-		threshold: Threshold for classifying a cell as a time cell using
-		the original Modi method. A good value is 3.0.
-		percentile: Percentile cutoff for r2b bootstrap. Suggest 99.5.
+	- analysisParams: AnalysisParams data structure, see below
+	- threshold: Threshold for classifying a cell as a time cell using
+		the original Modi 2014 method. A good value is 3.0.
+	- percentile: Percentile cutoff for r2b bootstrap. Suggest 99.5.
 
 
 
