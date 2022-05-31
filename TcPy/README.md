@@ -183,6 +183,7 @@ This module provides an interface for the Mau algorithms, the Modi algorithms,
 and the data structures used to configure them.
 
 Functions:
+----------
 
 ### tiScore
 
@@ -215,6 +216,51 @@ classification methods, one by thresholding and the other by bootstrapping.
 	- percentile: Percentile cutoff for r2b bootstrap. Suggest 99.5.
 
 
+## pybind11 module data structures
+
+This module provides an interface for the Mau algorithms, the Modi algorithms,
+and the data structures used to configure them.
+
+Data structures:
+----------------
+
+### CellScore
+
+CellScore is the class of the return object from each of the analysis routines.
+It reports the stats for a given cell in a given session, over multiple trials.
+Its fields are:
+
+| Field name | Type    | Meaning in ti method | Meaning in r2b method |
+|------------|---------|----------------------|-----------------------|
+| meanScore  | double  | Peak of mean over trials | r2b score of shuffled trials |
+| baseScore  | double  | Temporal information of cell | r2b score of original trial |
+| percentileScore  | double  | percentile for original TI among TI of shuffled trials | %ile for original r2b among r2b of shuffled trials |
+| sigMean  | bool  | does mean pk differ from shuffled? | is baseScore above threshold? |
+| sigBootstrap  | bool  | does TI differ from shuffled? | is percentileScore above threshold? |
+| fracTrialsFired  | double  | Hit trial ratio, fraction of trials with sig response | not computed, set to 0 |
+| meanTrace   | array of doubles | Average activity vs time over all trials | Average activity vs time over all trials |
+| meanPkIdx   | int | frame # of peak of mean over trials, typically bins of 3 frames | fram # of peak of mean over trials |
+
+
+### AnalysisParams
+
+AnalysisParams objects are passed in to the tiScore and r2b methods to 
+set parameters for the analysis.
+
+| Field name     | Type  | default |         Meaning                   |
+|----------------|-------|---------|-----------------------------------|
+| csOnsetFrame   | int   | 75 | First frame of conditioned stimulus      |
+| usOnsetFrame   | int   | 190 | First frame of unconditioned stimulus    |
+| circPad        | int   | 20 | # frames on either side of cs-us to include in shuffling |
+| circShuffleFrames | int   | 155 | # frames for circular shuffling |
+| binFrames | int   | 3 | # frames for binning input trace, used in TI method |
+| numShuffle | int   | 1000 | Number of times to do shuffling for bootstrap |
+| epsilon | double   | 1.0e-6 | log operations must work on larger numbers   |
+
+
+### TiAnalysisParams
+
+These are some additional parameters for the TI method from Mau 2018.
 
 
 
