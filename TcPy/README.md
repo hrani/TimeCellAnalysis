@@ -66,7 +66,8 @@ idx | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp
 ```
 
 If you want to run a batch analysis on a synthetic data file do the following. 
-It will dump all the data into .csv files:
+It will dump all the data into .csv files. If a file exists with the same name
+then the output is appended on to it.
 
 > python run_batch_analysis.py *filename*
 
@@ -140,7 +141,9 @@ The comma-separated entries are:
 - benchmark.py	: Simple time and memory benchmarks for the Mau and Modi
 			algorithms.<br/>
 - run_batch_analysis.py	: Runs a batch analysis on a datafile, generates 3 csv 
-			files with the output.<br/> 
+			files with the output. Note that the output files are
+			created in append mode, so that previous runs are
+			not overrwritten. 
 
 ### Matlab(R) demo scripts:
 

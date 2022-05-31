@@ -82,9 +82,9 @@ def printDatasetInfo( dat ):
     sd0 = dat["/sdo_batch/syntheticDATA"]   # Synthetic dataset.
     t0 = time.time()
 
-    r2bFile = open("r2b.csv", "w")
-    tiFile = open("ti.csv", "w")
-    groundTruthFile = open( "groundTruth.csv", "w" )
+    r2bFile = open("r2b.csv", "a")
+    tiFile = open("ti.csv", "a")
+    groundTruthFile = open( "groundTruth.csv", "a" )
 
     # Go through all entries in synthetic dataset. Each corresponds to
     # a recording session with different conditions of noise, background...
@@ -127,6 +127,9 @@ def printDatasetInfo( dat ):
         groundTruthFile.write( "\n" )
         print( "Completed dataset {} in time {:.2f}".format( idx, time.time()-t0))
 
+    tiFile.write( "\n" ) # Put a spacer in case we rerun and append to file.
+    r2bFile.write( "\n" )
+    groundTruthFile.write( "\n" )
     tiFile.close()
     r2bFile.close()
     groundTruthFile.close()
