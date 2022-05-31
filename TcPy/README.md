@@ -233,12 +233,12 @@ Its fields are:
 |------------|---------|----------------------|-----------------------|
 | meanScore  | double  | Peak of mean over trials | r2b score of shuffled trials |
 | baseScore  | double  | Temporal information of cell | r2b score of original trial |
-| percentileScore  | double  | percentile for original TI among TI of shuffled trials | %ile for original r2b among r2b of shuffled trials |
-| sigMean  | bool  | does mean pk differ from shuffled? | is baseScore above threshold? |
-| sigBootstrap  | bool  | does TI differ from shuffled? | is percentileScore above threshold? |
+| percentileScore  | double  | percentile for original TI among TI of shuffled trials | percentile for original r2b among r2b of shuffled trials |
+| sigMean  | bool  | does mean pk differ from shuffled? | is baseScore above r2b_threshold? |
+| sigBootstrap  | bool  | does TI differ from shuffled? | is r2b percentileScore above threshold? |
 | fracTrialsFired  | double  | Hit trial ratio, fraction of trials with sig response | not computed, set to 0 |
 | meanTrace   | array of doubles | Average activity vs time over all trials | Average activity vs time over all trials |
-| meanPkIdx   | int | frame # of peak of mean over trials, typically bins of 3 frames | fram # of peak of mean over trials |
+| meanPkIdx   | int | frame # of peak of mean over trials, typically bins of 3 frames | frame # of peak of mean over trials, no binning |
 
 
 ### AnalysisParams
@@ -254,12 +254,19 @@ set parameters for the analysis.
 | circShuffleFrames | int   | 155 | # frames for circular shuffling |
 | binFrames | int   | 3 | # frames for binning input trace, used in TI method |
 | numShuffle | int   | 1000 | Number of times to do shuffling for bootstrap |
-| epsilon | double   | 1.0e-6 | log operations must work on larger numbers   |
+| epsilon | double   | 1.0e-6 | Smallest number for log operations |
 
 
 ### TiAnalysisParams
 
 These are some additional parameters for the TI method from Mau 2018.
+
+| Field name     | Type  | default |         Meaning                   |
+|----------------|-------|---------|-----------------------------------|
+| transientThresh   | double   | 2.0 | Number of sdev over mean that an event should be to qualify as a transient |
+| tiPercentile   | double   | 99.0 | Percentile rank for TI to qualify |
+| fracTrialsFiredThresh | double   | 0.25 | Fraction of trials where there must be a transient for the cell to qualify. |
+| frameDt | double   | 0.08 | Duration of a 2p imaging frame for the Ca signal |
 
 
 
