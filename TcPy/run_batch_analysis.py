@@ -37,29 +37,10 @@ import time
 import tc       # This is the timeCell analysis code module.
 
 R2B_THRESH = 3.0
-R2B_PERCENTILE = 0.995
+R2B_PERCENTILE = 99.5
 
-'''
-# These are the data structures. Params go into the function, and 
-# CellScore comes out. Default values are indicated here.
-# These are initialized in C++, shown here for clarity.
-class AnalysisParams():
-    def __init__( self ):
-        self.csOnsetFrame = 75
-        self.usOnsetFrame = 190
-        self.circPad = 20
-        self.circShuffleFrames = 40 + 190 - 75
-        self.binFrames = 3
-        self.numShuffle = 1000
-        self.epsilon = 1.0e-6
-
-class TiAnalysisParams():
-    def __init__( self ):
-        self.transientThresh = 2.0
-        self.tiPercentile = 99.0
-        self.fracTRialsFiredThresh = 0.25
-        self.frameDt = 1.0 / 12.5
-
+# class AnalysisParams() and class TiAnalysisParams are described in the
+# README.md
 # Note that CellScore is read-only. Its values are filled by the tc code.
 #class CellScore():
 #    float self.meanScore        #Mau: pk of mean trace. r2b: shuffled mean
@@ -70,9 +51,9 @@ class TiAnalysisParams():
 #    float self.fracTrialsFired  # Hit trial ratio.
 #    np.array meanTrace          # meanTrace[frame#]. Ave trials for a cell
 #    int meanPkIdx               # Idx of peak frame in above.
-'''
-def scoreString( datasetIdx, cellIdx, x ):
-    return "{},{},{:.4f},{:.4f},{:.4f},{:1d},{:1d},{:.4f},{}\n".format( datasetIdx, cellIdx, x.meanScore, x.baseScore, x.percentileScore, int(x.sigMean), int(x.sigBootstrap), x.fracTrialsFired, x.meanPkIdx )
+
+def scoreString( datasetIdx, cellIdx, isTimeCell, x ):
+    return "{},{},{},{:.4f},{:.4f},{:.4f},{:1d},{:1d},{:.4f},{}\n".format( datasetIdx, cellIdx, isTimeCell, x.meanScore, x.baseScore, x.percentileScore, int(x.sigMean), int(x.sigBootstrap), x.fracTrialsFired, x.meanPkIdx )
 
 def printDatasetInfo( dat ):
     ap = tc.AnalysisParams()        # Use defaults for AnalysisParams
@@ -95,15 +76,16 @@ def printDatasetInfo( dat ):
         # array of CellScores, see above
         tiScore = np.array(tc.tiScore( dat[ss[0]], ap, tip ) )
         r2bScore = np.array( tc.r2bScore( dat[ss[0]], ap, R2B_THRESH, R2B_PERCENTILE ) )
-        for cellIdx, (tt, rr) in enumerate( zip( tiScore, r2bScore ) ):
-            tiFile.write( scoreString( idx, cellIdx, tt ) )
-            r2bFile.write( scoreString( idx, cellIdx, rr ) )
 
         # Fill in the groundTruth[cell#] array: True if cell is time-cell.
         groundTruth = np.zeros( len( tiScore ), dtype = int )
         trueCells = np.array( dat[ ptc[idx][0] ], dtype=int )[:,0]
         for cc in trueCells:
             groundTruth[cc-1] = 1   # Convert from 1-base to 0-base arrays
+
+        for cellIdx, (gg, tt, rr) in enumerate( zip( groundTruth, tiScore, r2bScore ) ):
+            tiFile.write( scoreString( idx, cellIdx, gg, tt ) )
+            r2bFile.write( scoreString( idx, cellIdx, gg, rr ) )
 
         # Go through and count true pos, false pos, true neg, false neg
         # for each of 5 classification methods in the Truth table.

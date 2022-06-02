@@ -42,9 +42,6 @@ struct CellScore {
 	double meanScore; // pk of mean trace from Mau; r2b shuffled mean, PEQ mean of all frames and trials.
 	double baseScore;	// Raw TI score, raw r2b ratio, PEQ main score.
 	double percentileScore;	// Temporal info from Mau; r2b bootstrap. PEQ ignores
-	double sdev;	// Used in PEQ. Sdev of all frames and trials.
-	double eventWidth;	// Used in PEQ
-	double imprecision;	// Used in PEQ
 	bool sigMean;
 	bool sigBootstrap;
 	double fracTrialsFired;	// Hit Trial Ratio

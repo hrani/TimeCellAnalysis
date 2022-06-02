@@ -34,7 +34,7 @@ import time
 import tc       # This is the timeCell analysis code module.
 
 R2B_THRESH = 3.0
-R2B_PERCENTILE = 0.995
+R2B_PERCENTILE = 99.5
 NUM_ITER = 10
 
 def doBenchmark( dat, method ):

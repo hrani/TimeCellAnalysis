@@ -32,7 +32,7 @@ import argparse
 import tc       # This is the timeCell analysis code module.
 
 R2B_THRESH = 3.0
-R2B_PERCENTILE = 0.995
+R2B_PERCENTILE = 99.5
 
 '''
 # These are the data structures. Params go into the function, and 

@@ -76,15 +76,16 @@ This will generate the files `ti.csv`, `r2b.csv` and `groundTruth.csv`
 Here are three lines from a sample ti,csv:
 
 ```
-0,0,0.4535,-0.1383,-0.1332,0,0,0.6000,0
-0,1,0.1643,-0.0821,-0.0700,0,0,0.3833,3
-0,2,2.6316,-0.1009,-0.1673,1,1,0.7167,7
+0,0,0,0.4535,-0.1383,-0.1337,0,0,0.6000,0
+0,1,0,0.1643,-0.0821,-0.0681,0,0,0.3833,3
+0,2,1,2.6316,-0.1009,-0.1667,1,1,0.7167,7
 ```
 
 The comma-separated entries are
 
 	- datasetIdx:	Index of the dataset, i.e. recording session.
 	- cellIdx:	Index of the cell whose stats are reported on this line
+	- isTimeCell:	Is the cell a time-cell? 1 if true, 0 if false.
 	- meanScore: 	Peak of the mean of all trials for this cell
 	- baseScore:	Temporal information for cell
 	- percentileScore:	TI of cell vs TI of shuffled cells
