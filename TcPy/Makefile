@@ -25,7 +25,7 @@ all: generate_pybind
 
 generate_pybind:
 	$(CXX) -shared $(CFLAGS) -fPIC `$(PYTHON)-config --includes` -I. -I../extern/pybind11/include `$(PYTHON) -m pybind11 --includes` \
-		tcDefaults.cpp tiScore.cpp r2bScore.cpp tcBind.cpp -o tc`$(PYTHON)-config --extension-suffix`
+		tcDefaults.cpp tiScore.cpp r2bScore.cpp peqScore.cpp tcBind.cpp -o tc`$(PYTHON)-config --extension-suffix`
 
 .PHONY: all clean distclean
 
