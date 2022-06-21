@@ -46,6 +46,7 @@ Dataset    #SigMean    #sigBoot     #sigBoth
 ```
 
 Similar output is obtained from *r2b_demo.py*
+
 A few additional stats are reported by *peq_demo.py*
 
 
@@ -165,11 +166,12 @@ generateSyntheticData.m	: Generates a MATLAB data file with synthetic data
 ### Files to build the pyBind11 module
 
 r2bScore.cpp  
+peqScore.cpp  
 tcBind.cpp  
 tcDefaults.cpp  
 timeCell.cpp  
 tiScore.cpp 
-tcHeadher.h
+tcHeader.h
 Makefile
 
 ### Matlab Interface Files

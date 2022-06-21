@@ -38,6 +38,7 @@ import tc       # This is the timeCell analysis code module.
 
 R2B_THRESH = 3.0
 R2B_PERCENTILE = 99.5
+PEQ_THRESH = 0.002
 
 # class AnalysisParams() and class TiAnalysisParams are described in the
 # README.md
@@ -55,8 +56,16 @@ R2B_PERCENTILE = 99.5
 def scoreString( datasetIdx, cellIdx, isTimeCell, x ):
     return "{},{},{},{:.4f},{:.4f},{:.4f},{:1d},{:1d},{:.4f},{}\n".format( datasetIdx, cellIdx, isTimeCell, x.meanScore, x.baseScore, x.percentileScore, int(x.sigMean), int(x.sigBootstrap), x.fracTrialsFired, x.meanPkIdx )
 
+def peqScoreString( datasetIdx, cellIdx, isTimeCell, x ):
+    if x.meanScore > 1e-5:
+        noise = x.sdev/x.meanScore
+    else:
+        noise = 0.0
+    return "{},{},{},{:1d},{:.6f},{:.4f},{:.4f},{:.4f},{:.4f}\n".format( datasetIdx, cellIdx, isTimeCell, int(x.baseScore > PEQ_THRESH), x.baseScore, noise, x.eventWidthMean, x.imprecision, x.fracTrialsFired )
+
 def printDatasetInfo( dat ):
     ap = tc.AnalysisParams()        # Use defaults for AnalysisParams
+    pep = tc.PeqAnalysisParams()    # Use defaults for PeqAnalysisParams
     tip = tc.TiAnalysisParams()     # Use defaults for TIAnalysisParams
     tip.frameDt = 1.0/ 12.5         # Reassign default frameDt
     ptc = dat["sdo_batch/ptcList"] # ptc is list of positive time cells.
@@ -65,17 +74,19 @@ def printDatasetInfo( dat ):
 
     r2bFile = open("r2b.csv", "a")
     tiFile = open("ti.csv", "a")
+    peqFile = open("peq.csv", "a")
     groundTruthFile = open( "groundTruth.csv", "a" )
 
     # Go through all entries in synthetic dataset. Each corresponds to
     # a recording session with different conditions of noise, background...
     for idx, ss in enumerate( sd0 ):
         #truth array indexed as: truth[scoringMethod][isCorrect][isPositive]
-        truth = np.zeros( (5,2,2), dtype=int)
+        truth = np.zeros( (6,2,2), dtype=int)
         # These are the calls to the analysis routines. Return is an
         # array of CellScores, see above
         tiScore = np.array(tc.tiScore( dat[ss[0]], ap, tip ) )
         r2bScore = np.array( tc.r2bScore( dat[ss[0]], ap, R2B_THRESH, R2B_PERCENTILE ) )
+        peqScore = np.array( tc.peqScore( dat[ss[0]], ap, pep ) )
 
         # Fill in the groundTruth[cell#] array: True if cell is time-cell.
         groundTruth = np.zeros( len( tiScore ), dtype = int )
@@ -83,13 +94,14 @@ def printDatasetInfo( dat ):
         for cc in trueCells:
             groundTruth[cc-1] = 1   # Convert from 1-base to 0-base arrays
 
-        for cellIdx, (gg, tt, rr) in enumerate( zip( groundTruth, tiScore, r2bScore ) ):
+        for cellIdx, (gg, tt, rr, pp) in enumerate( zip( groundTruth, tiScore, r2bScore, peqScore ) ):
             tiFile.write( scoreString( idx, cellIdx, gg, tt ) )
             r2bFile.write( scoreString( idx, cellIdx, gg, rr ) )
+            peqFile.write( peqScoreString( idx, cellIdx, gg, pp ) )
 
         # Go through and count true pos, false pos, true neg, false neg
         # for each of 5 classification methods in the Truth table.
-        for tt, rr, gg in zip( tiScore, r2bScore, groundTruth ):
+        for tt, rr, pp, gg in zip(tiScore, r2bScore, peqScore, groundTruth):
             truth[0][int(tt.sigMean)][gg] += 1      # Transient score
             truth[1][int(tt.sigBootstrap)][gg] += 1 # TI score
 
@@ -98,6 +110,7 @@ def printDatasetInfo( dat ):
 
             truth[3][int(rr.sigMean)][gg] += 1      # R2B threshold form
             truth[4][int(rr.sigBootstrap)][gg] += 1     # R2B bootstrap.
+            truth[5][int(pp.baseScore > PEQ_THRESH)][gg] += 1     # PEQ sig
 
         
         # Print it all out.
@@ -111,9 +124,11 @@ def printDatasetInfo( dat ):
 
     tiFile.write( "\n" ) # Put a spacer in case we rerun and append to file.
     r2bFile.write( "\n" )
+    peqFile.write( "\n" )
     groundTruthFile.write( "\n" )
     tiFile.close()
     r2bFile.close()
+    peqFile.close()
     groundTruthFile.close()
 
 def main():
