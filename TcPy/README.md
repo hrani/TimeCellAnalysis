@@ -46,6 +46,7 @@ Dataset    #SigMean    #sigBoot     #sigBoth
 ```
 
 Similar output is obtained from *r2b_demo.py*
+A few additional stats are reported by *peq_demo.py*
 
 
 If your source data file is generated from the synthetic data program, you 
@@ -137,6 +138,7 @@ The comma-separated entries are:
 ### Python demo scripts:
 - ti_demo.py	: Runs Mau's Temporal Information set of algorithms.<br/>
 - r2b_demo.py	: Runs Modi's Ridge-to-background set of algorithms.<br/> 
+- peq_demo.py	: Runs a simple classifier based on noise, hit-trial ratio, event width and jitter. Also reports these useful stats of the dataset.<br/> 
 - ground_truth_check.py : Uses synthetic data files to assess accuracy of
 			classification by the various Mau and Modi algorithms.<br/> 
 - benchmark.py	: Simple time and memory benchmarks for the Mau and Modi
