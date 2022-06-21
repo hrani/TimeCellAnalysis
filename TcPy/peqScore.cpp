@@ -13,6 +13,8 @@ namespace py = pybind11;
 #include <tcHeader.h>
 PYBIND11_MAKE_OPAQUE(std::vector<double>);
 
+#define EPSILON 1.0e-5
+
 /// Returns the mean dfbf[ frame# ] for the specified shuffle[ trial# ]
 /// using data[ trial# ][ frame# ]. Operates on data for a single cell.
 static vector< double > aveOfTrials( 
@@ -237,11 +239,15 @@ CellScore cellPeqScore( const vector< vector< double > >& data, const AnalysisPa
 	cs.fracTrialsFired = stats.first; // Hit Trial Ratio
 	double sdevImp = stats.second;
 	double signal = -1.0;
-	if ( cs.fracTrialsFired > 0 )
+	/*
+	 * This doesn't work because mean can be close to zero.
+	if ( mean > EPSILON )
+		signal = sdev/mean;
+	*/
+	if ( cs.fracTrialsFired > 0.0 ) {
 		// mean signal estimate as average of trials where there is a hit.
-		signal = cs.meanTrace[cs.meanPkIdx] / cs.fracTrialsFired;
-	else
-		return cs; // bail
+		signal = sdev * cs.fracTrialsFired / cs.meanTrace[cs.meanPkIdx];
+	}
 
 	// Now event Width
 	stats = findEventWidthStats( data, cellThresh, ap.circShuffleFrames );
@@ -253,10 +259,11 @@ CellScore cellPeqScore( const vector< vector< double > >& data, const AnalysisPa
 	/// of these, the only that change with shuffling is HTR. So shuffling
 	//is not a good way to analyze this. Just use the peq directly.
 	
-	if ( sdevImp < 0.0 || meanEW < 0.0 || signal < 0.0 )
-		return cs; // bail
+	double Q = 0.0;
+	if ( !(sdevImp < 0.0 || meanEW < 0.0 || signal < 0.0 ) ) { 
+		Q = cs.fracTrialsFired * exp( -pep.alpha*signal + pep.beta * sdevEW/meanEW + sdevImp/double(ap.circShuffleFrames) );
+	}
 	
-	double Q = cs.fracTrialsFired * exp( -pep.alpha*sdev/signal + pep.beta * sdevEW/meanEW + sdevImp/double(ap.circShuffleFrames) );
 	cs.baseScore = Q;
 
 	return cs;
