@@ -33,28 +33,9 @@ import tc       # This is the timeCell analysis code module.
 
 R2B_THRESH = 3.0
 R2B_PERCENTILE = 99.5
+PEQ_THRESH = 0.002
 
 '''
-# These are the data structures. Params go into the function, and 
-# CellScore comes out. Default values are indicated here.
-# These are initialized in C++, shown here for clarity.
-class AnalysisParams():
-    def __init__( self ):
-        self.csOnsetFrame = 75
-        self.usOnsetFrame = 190
-        self.circPad = 20
-        self.circShuffleFrames = 40 + 190 - 75
-        self.binFrames = 3
-        self.numShuffle = 1000
-        self.epsilon = 1.0e-6
-
-class TiAnalysisParams():
-    def __init__( self ):
-        self.transientThresh = 2.0
-        self.tiPercentile = 99.0
-        self.fracTRialsFiredThresh = 0.25
-        self.frameDt = 1.0 / 12.5
-
 # Note that CellScore is read-only. Its values are filled by the tc code.
 #class CellScore():
 #    float self.meanScore        #Mau: pk of mean trace. r2b: shuffled mean
@@ -69,6 +50,7 @@ class TiAnalysisParams():
 
 def printDatasetInfo( dat ):
     ap = tc.AnalysisParams()        # Use defaults for AnalysisParams
+    pep = tc.PeqAnalysisParams()    # Use defaults for PeqAnalysisParams
     tip = tc.TiAnalysisParams()     # Use defaults for TIAnalysisParams
     tip.frameDt = 1.0/ 12.5         # Reassign default frameDt
     ptc = dat["sdo_batch/ptcList"] # ptc is list of positive time cells.
@@ -76,14 +58,15 @@ def printDatasetInfo( dat ):
 
     # Go through all entries in synthetic dataset. Each corresponds to
     # a recording session with different conditions of noise, background...
-    print( "idx  Mau Peak Sig |   Mau TI    | Mau pk&&TI  |  r2b thresh | r2b bootstr" )
+    print( "    |Mau Peak Sig |   Mau TI    | Mau pk&&TI  |  r2b thresh | r2b bootstr | peq score" )
     for idx, ss in enumerate( sd0 ):
         #truth array indexed as: truth[scoringMethod][isCorrect][isPositive]
-        truth = np.zeros( (5,2,2), dtype=int)
+        truth = np.zeros( (6,2,2), dtype=int)
         # These are the calls to the analysis routines. Return is an
         # array of CellScores, see above
         tiScore = np.array(tc.tiScore( dat[ss[0]], ap, tip ) )
         r2bScore = np.array( tc.r2bScore( dat[ss[0]], ap, R2B_THRESH, R2B_PERCENTILE ) )
+        peqScore = np.array( tc.peqScore( dat[ss[0]], ap, pep ) )
 
         # Fill in the groundTruth[cell#] array: True if cell is time-cell.
         groundTruth = np.zeros( len( tiScore ), dtype = int )
@@ -93,7 +76,7 @@ def printDatasetInfo( dat ):
 
         # Go through and count true pos, false pos, true neg, false neg
         # for each of 5 classification methods in the Truth table.
-        for tt, rr, gg in zip( tiScore, r2bScore, groundTruth ):
+        for tt, rr, pp, gg in zip( tiScore, r2bScore, peqScore, groundTruth ):
             truth[0][int(tt.sigMean)][gg] += 1      # Transient score
             truth[1][int(tt.sigBootstrap)][gg] += 1 # TI score
 
@@ -106,10 +89,12 @@ def printDatasetInfo( dat ):
             # R2B bootstrap.
             truth[4][int(rr.sigBootstrap)][gg] += 1
 
+            # PEQ score
+            truth[5][int(pp.baseScore > PEQ_THRESH)][gg] += 1
         
         # Print it all out.
         if idx % 20 == 0:
-            print( "idx | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp" )
+            print( "idx | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp" )
         print( "{:3d}".format( idx ), end = "" )
         for tr in truth:
             x = np.array(tr)

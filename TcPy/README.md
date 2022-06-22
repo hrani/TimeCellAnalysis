@@ -23,6 +23,8 @@ are Matlab version 7.3 files, organized as `[dataset][frame#][trial#][cell#]`
 These files can be generated from data analysis code, or from the synthetic
 data generation programs developed in this project.
 
+Here are the key script calls:
+
 > python ti_demo.py *filename*
 
 This will run a partial analysis for time-cells in the specified file,
@@ -53,17 +55,17 @@ A few additional stats are reported by *peq_demo.py*
 If your source data file is generated from the synthetic data program, you 
 can run:
 
-> python ground_truth_check.py <filename>
+> python ground_truth_check.py *filename*
 
 and it will use ground-truth data from the file to see how well the various
 methods handle the data. Output is like this:
 
 ```
-idx  Mau Peak Sig |   Mau TI    | Mau pk&&TI  |  r2b thresh | r2b bootstr
-idx | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp
-  0 | 68  2  0 65 | 68  1  0 66 | 68  3  0 64 | 64  1  4 66 | 29  1 39 66
-  1 | 67  5  1 62 | 68  0  0 67 | 68  5  0 62 | 63  0  5 67 | 29  0 39 67
-  2 | 67  2  1 65 | 66  1  2 66 | 68  3  0 64 | 61  2  7 65 | 41  2 27 65
+    |Mau Peak Sig |   Mau TI    | Mau pk&&TI  |  r2b thresh | r2b bootstr | peq score
+idx | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp
+  0 | 68  2  0 65 | 67  1  1 66 | 68  3  0 64 | 64  1  4 66 | 68  1  0 66 | 55 32 13 35
+  1 | 67  5  1 62 | 68  0  0 67 | 68  5  0 62 | 65  0  3 67 | 68  1  0 66 | 44 35 24 32
+  2 | 67  2  1 65 | 68  1  0 66 | 68  3  0 64 | 61  2  7 65 | 68  2  0 65 | 59 24  9 43
 ...
 ```
 
@@ -73,9 +75,9 @@ then the output is appended on to it.
 
 > python run_batch_analysis.py *filename*
 
-This will generate the files `ti.csv`, `r2b.csv` and `groundTruth.csv`
+This will generate the files `ti.csv`, `r2b.csv`, `peq.csv` and `groundTruth.csv`
 
-Here are three lines from a sample ti,csv:
+Here are three lines from a sample `ti.csv`:
 
 ```
 0,0,0,0.4535,-0.1383,-0.1337,0,0,0.6000,0
@@ -109,7 +111,21 @@ the height of the peak vs the height of the shuffled peak.
 	- fracTrialsFired:	Not computed, set to 0.
 	- meanPkIdx:	Frame number of peak of mean cell activity. Note that this method does not do frame binning.
 
-finally, groundTruth.csv reports how well the different methods compare to
+`peq.csv` is a bit different. peq stands for parametric equation quality, a metric for
+estimating the quality of the recording in terms of key parameters of the dataset.
+These parameters are noise, imprecision, event width, and hit trial ratio.
+Here are the comma-separated entries for the peq.csv:
+
+	- datasetIdx:	Index of the dataset, i.e. recording session.
+	- cellIdx:	Index of the cell whose stats are reported on this line
+	- sigPeq:	Is this a time cell, ie, is the peq score > threshold?
+	- baseScore:	The peq score, PEQ = HTR x exp -( alpha.N/S + beta*sdevEW/meanEW + gamma*sdevImp/stimWindow )
+	- noise: 	Noise estimate for dataset.
+	- eventWidth:	Mean event width for dataset
+	- imprecision:	Imprecision of timing of the event.
+	- fracTrialsFired:	Hit trial ratio, fraction of trials where cell fired.
+
+Finally, `groundTruth.csv` reports how well the different methods compare to
 the ground truth, which is the known presence of time cells as put into
 the synthetic data.
 
@@ -147,7 +163,7 @@ The comma-separated entries are:
 - run_batch_analysis.py	: Runs a batch analysis on a datafile, generates 3 csv 
 			files with the output. Note that the output files are
 			created in append mode, so that previous runs are
-			not overrwritten. 
+			not overwritten. 
 
 ### Matlab(R) demo scripts:
 
@@ -187,7 +203,7 @@ pyBindMap.py	: Provides an interface to the python/C++ functions using
 ## pybind11 module functions
 
 This module provides an interface for the Mau algorithms, the Modi algorithms,
-and the data structures used to configure them.
+the peq calculations, and the data structures used to configure them.
 
 Functions:
 ----------
@@ -222,11 +238,27 @@ classification methods, one by thresholding and the other by bootstrapping.
 		the original Modi 2014 method. A good value is 3.0.
 	- percentile: Percentile cutoff for r2b bootstrap. Suggest 99.5.
 
+### peqScore
+
+> CellScore tc.peqScore( data, analysisParams, peqAnalysisParams )
+This performs the parametric equation analysis defined in Ananthamurthy and Bhalla 2022.
+It isn't a very good time-cell classifier, but it returns estimates of a number of key
+parameters of the dataset: the noise, the event width, the jitter, and the hit trial ratio.
+
+	- **Returns**: an array of CellScore structures. See below.
+	- **Arguments**: 
+		data: Python Array of doubles organized as
+		data[frameIdx][trailIdx][cellIdx]
+
+	- analysisParams: AnalysisParams data structure, see below
+	- peqAnalysisParams: PeqAnalysisParams data structure, see below.
+
+
 
 ## pybind11 module data structures
 
 This module provides an interface for the Mau algorithms, the Modi algorithms,
-and the data structures used to configure them.
+the PEQ analysis, and the data structures used to configure them.
 
 Data structures:
 ----------------
@@ -237,16 +269,20 @@ CellScore is the class of the return object from each of the analysis routines.
 It reports the stats for a given cell in a given session, over multiple trials.
 Its fields are:
 
-| Field name | Type    | Meaning in ti method | Meaning in r2b method |
-|------------|---------|----------------------|-----------------------|
-| meanScore  | double  | Peak of mean over trials | r2b score of shuffled trials |
-| baseScore  | double  | Temporal information of cell | r2b score of original trial |
-| percentileScore  | double  | percentile for original TI among TI of shuffled trials | percentile for original r2b among r2b of shuffled trials |
-| sigMean  | bool  | does mean pk differ from shuffled? | is baseScore above r2b_threshold? |
-| sigBootstrap  | bool  | does TI differ from shuffled? | is r2b percentileScore above threshold? |
-| fracTrialsFired  | double  | Hit trial ratio, fraction of trials with sig response | not computed, set to 0 |
-| meanTrace   | array of doubles | Average activity vs time over all trials | Average activity vs time over all trials |
-| meanPkIdx   | int | frame # of peak of mean over trials, typically bins of 3 frames | frame # of peak of mean over trials, no binning |
+| Field name | Type    | Meaning in ti method | Meaning in r2b method | Meaning in peq method |
+|------------|---------|----------------------|-----------------------|-----------------------|
+| meanScore  | double  | Peak of mean over trials | r2b score of shuffled trials | mean of all frames and trials |
+| baseScore  | double  | Temporal information of cell | r2b score of original trial | PEQ score |
+| percentileScore  | double  | percentile for original TI among TI of shuffled trials | percentile for original r2b among r2b of shuffled trials | Ignored |
+| sdev       | double  | Ignored              |   Ignored             | Standard deviation of all frames and trials |
+| eventWidthMean | double  | Ignored          |   Ignored             | Mean of event width, in frames |
+| eventWidthSdev | double  | Ignored          |   Ignored             | Mean of event width, in frames |
+| imprecision | double     | Ignored          |   Ignored             | Imprecision in onset of event, in frames |
+| sigMean  | bool  | does mean pk differ from shuffled? | is baseScore above r2b_threshold? | Ignored |
+| sigBootstrap  | bool  | does TI differ from shuffled? | is r2b percentileScore above threshold? | Ignored |
+| fracTrialsFired  | double  | Hit trial ratio, fraction of trials with sig response | not computed, set to 0 | Hit trial ratio |
+| meanTrace   | array of doubles | Average activity vs time over all trials | Average activity vs time over all trials | Average activity vs time over all trials |
+| meanPkIdx   | int | frame # of peak of mean over trials, typically bins of 3 frames | frame # of peak of mean over trials, no binning | frame # of peak of mean over trials, no binning |
 
 
 ### AnalysisParams
@@ -275,6 +311,18 @@ These are some additional parameters for the TI method from Mau 2018.
 | tiPercentile   | double   | 99.0 | Percentile rank for TI to qualify |
 | fracTrialsFiredThresh | double   | 0.25 | Fraction of trials where there must be a transient for the cell to qualify. |
 | frameDt | double   | 0.08 | Duration of a 2p imaging frame for the Ca signal |
+
+### PeqAnalysisParams
+
+These are additional parameters for the PEQ method from Ananthamurthy and Bhalla 2022.
+
+| Field name    | Type   | default |         Meaning                   |
+|---------------|--------|---------|-----------------------------------|
+| alpha         | double | 10.0    | Scale factor for noise term in PEQ calculation |
+| beta          | double | 1.0     | Scale factor for event width term in PEQ calculation |
+| gamma         | double | 10.0    | Scale factor for imprecision term in PEQ calculation |
+| transientThresh | double   | 2.0 | Number of sdev over mean for an event to qualify as a transient |
+| hitWindow     | double   | 5.0 | Number of frames + or - from peak to claim event as a hit |
 
 
 
