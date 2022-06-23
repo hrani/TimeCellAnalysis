@@ -89,6 +89,7 @@ The comma-separated entries are
 
 	- datasetIdx:	Index of the dataset, i.e. recording session.
 	- cellIdx:	Index of the cell whose stats are reported on this line
+	- groundTruth:	Flag: Is the  cell a time cell?
 	- isTimeCell:	Is the cell a time-cell? 1 if true, 0 if false.
 	- meanScore: 	Peak of the mean of all trials for this cell
 	- baseScore:	Temporal information for cell
@@ -103,8 +104,9 @@ the height of the peak vs the height of the shuffled peak.
 
 	- datasetIdx:	Index of the dataset, i.e. recording session.
 	- cellIdx:	Index of the cell whose stats are reported on this line
-	- meanScore: 	r2b score for shuffled trials.
-	- baseScore:	r2b score for original trial.
+	- groundTruth:	Flag: Is the  cell a time cell?
+	- meanScore: 	r2b average for shuffled trials.
+	- baseScore:	r2b value for original trial.
 	- percentileScore:	where does r2bscore place among shuffled r2bs?
 	- sigMean:	Is the base score above a threshold? Usually 3.0.
 	- sigBootstrap:	Is the percentile score above a threshold? Usually 99.5
@@ -118,6 +120,7 @@ Here are the comma-separated entries for the peq.csv:
 
 	- datasetIdx:	Index of the dataset, i.e. recording session.
 	- cellIdx:	Index of the cell whose stats are reported on this line
+	- groundTruth:	Flag: Is the  cell a time cell?
 	- sigPeq:	Is this a time cell, ie, is the peq score > threshold?
 	- baseScore:	The peq score, PEQ = HTR x exp -( alpha.N/S + beta*sdevEW/meanEW + gamma*sdevImp/stimWindow )
 	- noise: 	Noise estimate for dataset.
@@ -271,8 +274,8 @@ Its fields are:
 
 | Field name | Type    | Meaning in ti method | Meaning in r2b method | Meaning in peq method |
 |------------|---------|----------------------|-----------------------|-----------------------|
-| meanScore  | double  | Peak of mean over trials | r2b score of shuffled trials | mean of all frames and trials |
-| baseScore  | double  | Temporal information of cell | r2b score of original trial | PEQ score |
+| meanScore  | double  | Peak of mean over trials | r2b average of shuffled trials | mean of all frames and trials |
+| baseScore  | double  | Temporal information of cell | r2b value of original trial | PEQ score |
 | percentileScore  | double  | percentile for original TI among TI of shuffled trials | percentile for original r2b among r2b of shuffled trials | Ignored |
 | sdev       | double  | Ignored              |   Ignored             | Standard deviation of all frames and trials |
 | eventWidthMean | double  | Ignored          |   Ignored             | Mean of event width, in frames |
