@@ -279,11 +279,11 @@ Its fields are:
 | percentileScore  | double  | percentile for original TI among TI of shuffled trials | percentile for original r2b among r2b of shuffled trials | Ignored |
 | sdev       | double  | Ignored              |   Ignored             | Standard deviation of all frames and trials |
 | eventWidthMean | double  | Ignored          |   Ignored             | Mean of event width, in frames |
-| eventWidthSdev | double  | Ignored          |   Ignored             | Mean of event width, in frames |
+| eventWidthSdev | double  | Ignored          |   Ignored             | Sdev of event width, in frames |
 | imprecision | double     | Ignored          |   Ignored             | Imprecision in onset of event, in frames |
 | sigMean  | bool  | does mean pk differ from shuffled? | is baseScore above r2b_threshold? | Ignored |
 | sigBootstrap  | bool  | does TI differ from shuffled? | is r2b percentileScore above threshold? | Ignored |
-| fracTrialsFired  | double  | Hit trial ratio, fraction of trials with sig response | not computed, set to 0 | Hit trial ratio |
+| fracTrialsFired  | double  | Hit trial ratio, i.e., fraction of trials with significant response | not computed, set to 0 | Hit trial ratio |
 | meanTrace   | array of doubles | Average activity vs time over all trials | Average activity vs time over all trials | Average activity vs time over all trials |
 | meanPkIdx   | int | frame # of peak of mean over trials, typically bins of 3 frames | frame # of peak of mean over trials, no binning | frame # of peak of mean over trials, no binning |
 
