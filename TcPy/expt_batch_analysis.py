@@ -34,6 +34,7 @@ import matplotlib.pyplot as plt
 import h5py
 import argparse
 import time
+from scipy.io import loadmat
 import tc       # This is the timeCell analysis code module.
 
 R2B_THRESH = 3.0
@@ -72,19 +73,31 @@ def convertAP( args ):
     ap.numShuffle = args.numShuffle
     ap.epsilon = args.epsilon
 
-    print( ap )
     return ap
 
-def printDatasetInfo( dat, location, ap ):
+def printV5Info( dat, ap, r2bFile, tiFile, peqFile  ):
     pep = tc.PeqAnalysisParams()    # Use defaults for PeqAnalysisParams
     tip = tc.TiAnalysisParams()     # Use defaults for TIAnalysisParams
     tip.frameDt = 1.0/ 12.5         # Reassign default frameDt
-    sd0 = dat[location]             # dataset.
-    t0 = time.time()
 
-    r2bFile = open("r2b.csv", "a")
-    tiFile = open("ti.csv", "a")
-    peqFile = open("peq.csv", "a")
+    arg = np.swapaxes( dat, 0, 2 )
+    tiScore = np.array(tc.tiScore( arg, ap, tip ) )
+    r2bScore = np.array( tc.r2bScore( arg, ap, R2B_THRESH, R2B_PERCENTILE ) )
+    peqScore = np.array( tc.peqScore( arg, ap, pep ) )
+    idx = 0
+
+    for cellIdx, (tt, rr, pp) in enumerate( zip( tiScore, r2bScore, peqScore ) ):
+        tiFile.write( scoreString( idx, cellIdx, tt ) )
+        r2bFile.write( scoreString( idx, cellIdx, rr ) )
+        peqFile.write( peqScoreString( idx, cellIdx, pp ) )
+
+
+def printHDF5Info( dat, location, ap, r2bFile, tiFile, peqFile  ):
+    pep = tc.PeqAnalysisParams()    # Use defaults for PeqAnalysisParams
+    tip = tc.TiAnalysisParams()     # Use defaults for TIAnalysisParams
+    tip.frameDt = 1.0/ 12.5         # Reassign default frameDt
+
+    sd0 = dat[location]             # dataset.
 
     # Go through all entries in synthetic dataset. Each corresponds to
     # a recording session with different conditions of noise, background...
@@ -99,6 +112,19 @@ def printDatasetInfo( dat, location, ap ):
             tiFile.write( scoreString( idx, cellIdx, tt ) )
             r2bFile.write( scoreString( idx, cellIdx, rr ) )
             peqFile.write( peqScoreString( idx, cellIdx, pp ) )
+        print( "Done dataset ", idx, flush=True)
+
+def printDatasetInfo( dat, location, isHDF5, ap ):
+    t0 = time.time()
+
+    r2bFile = open("r2b.csv", "a")
+    tiFile = open("ti.csv", "a")
+    peqFile = open("peq.csv", "a")
+
+    if isHDF5:
+        printHDF5Info( dat, location, ap, r2bFile, tiFile, peqFile )
+    else:
+        printV5Info( dat[location], ap, r2bFile, tiFile, peqFile )
         
     # Print it all out.
     tiFile.write( "\n" ) # Put a spacer in case we rerun and append to file.
@@ -116,7 +142,7 @@ def main():
     Note that the fracTrialsFired is not computed for the r2b method.\n
     '''
     parser = argparse.ArgumentParser( description = main.__doc__ )
-    parser.add_argument( "datafile",  type = str, help = "Required. File name to load, in matlab >= 7.3 aka HDF5 format" )
+    parser.add_argument( "datafile",  type = str, help = "Required. File name to load, either in matlab >= 7.3 aka HDF5 format or in Matlab v5." )
     parser.add_argument( "-d", "--dataLocation",  type = str, help = "Optional. String to look up data in HDF file.", default = "/sdo_batch/syntheticDATA" )
     parser.add_argument( "-s", "--stimulusFrames",  type = int, nargs=2, help = "Optional. CS_frame US_frame. Default = [75,190]", default = [75,190], metavar = ("CS_frame", "US_frame" ) )
     parser.add_argument( "--circPad",  type = int, nargs=1, help = "Optional. Number of frames for padding circular shuffle, default=20.", default = 20 )
@@ -127,8 +153,12 @@ def main():
 
     ap = convertAP( args )
 
-    dat = h5py.File( args.datafile, 'r' )
-    printDatasetInfo( dat, args.dataLocation, ap )
+    if h5py.is_hdf5( args.datafile ):
+        dat = h5py.File( args.datafile, 'r' )
+        printDatasetInfo( dat, args.dataLocation, True, ap )
+    else:
+        dat = loadmat( args.datafile )
+        printDatasetInfo( dat, args.dataLocation, False, ap )
 
 if __name__ == '__main__':
     main()
