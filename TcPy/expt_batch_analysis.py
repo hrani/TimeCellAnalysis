@@ -69,6 +69,7 @@ def convertAP( args ):
     ap.csOnsetFrame = args.stimulusFrames[0]
     ap.usOnsetFrame = args.stimulusFrames[1]
     ap.circPad = args.circPad
+    print( "AP BIN = ", args.binFrames )
     ap.binFrames = args.binFrames
     ap.numShuffle = args.numShuffle
     ap.epsilon = args.epsilon
@@ -117,9 +118,9 @@ def printHDF5Info( dat, location, ap, r2bFile, tiFile, peqFile  ):
 def printDatasetInfo( dat, location, isHDF5, ap ):
     t0 = time.time()
 
-    r2bFile = open("r2b.csv", "a")
-    tiFile = open("ti.csv", "a")
-    peqFile = open("peq.csv", "a")
+    r2bFile = open("r2b.csv", "w")
+    tiFile = open("ti.csv", "w")
+    peqFile = open("peq.csv", "w")
 
     if isHDF5:
         printHDF5Info( dat, location, ap, r2bFile, tiFile, peqFile )
@@ -145,8 +146,8 @@ def main():
     parser.add_argument( "datafile",  type = str, help = "Required. File name to load, either in matlab >= 7.3 aka HDF5 format or in Matlab v5." )
     parser.add_argument( "-d", "--dataLocation",  type = str, help = "Optional. String to look up data in HDF file.", default = "/sdo_batch/syntheticDATA" )
     parser.add_argument( "-s", "--stimulusFrames",  type = int, nargs=2, help = "Optional. CS_frame US_frame. Default = [75,190]", default = [75,190], metavar = ("CS_frame", "US_frame" ) )
-    parser.add_argument( "--circPad",  type = int, nargs=1, help = "Optional. Number of frames for padding circular shuffle, default=20.", default = 20 )
-    parser.add_argument( "-b", "--binFrames",  type = int, nargs=1, help = "Optional. Bin time-series by this number of frames, default=3.", default = 3 )
+    parser.add_argument( "--circPad",  type = int, help = "Optional. Number of frames for padding circular shuffle, default=20.", default = 20 )
+    parser.add_argument( "-b", "--binFrames",  type = int, help = "Optional. Bin time-series by this number of frames, default=3.", default = 3 )
     parser.add_argument( "--numShuffle",  type = int, nargs=1, help = "Optional. Number of times to shuffle dataset for bootstrap, default=1000", default = 1000 )
     parser.add_argument( "--epsilon",  type = float, nargs=1, help = "Optional. Espilon to use as smallest allowed value for mean df by f.", default = 1e-6 )
     args = parser.parse_args()
