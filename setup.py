@@ -15,10 +15,6 @@ class git_clone_external(build_ext):
         	subprocess.check_call(['git', 'clone', 'https://github.com/pybind/pybind11/','extern/pybind11/'])
         build_ext.run(self)
         
-if not  os.path.isdir("rho-matlab"):
-        command = f"git clone https://github.com/ananthamurthy/rho-matlab/ rho-matlab/"
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-        out, err = process.communicate()
 if sys.version_info >= (3,5):
 	{
 		setuptools.setup(
