@@ -10,7 +10,7 @@
 using namespace std;
 
 namespace py = pybind11;
-#include <tcHeader.h>
+#include "tcHeader.h"
 PYBIND11_MAKE_OPAQUE(std::vector<double>);
 
 #define EPSILON 1.0e-5

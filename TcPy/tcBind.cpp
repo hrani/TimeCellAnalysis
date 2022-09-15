@@ -7,7 +7,7 @@
 PYBIND11_MAKE_OPAQUE(std::vector<double>);
 using namespace std;
 namespace py = pybind11;
-#include <tcHeader.h>
+#include "tcHeader.h"
 
 vector< CellScore > r2bScore(py::array_t<double> xs, const AnalysisParams& ap, double r2bThresh, double r2bPercentile );
 vector< CellScore > tiScore( py::array_t<double> xs, const AnalysisParams& ap, const TiAnalysisParams& tip );
