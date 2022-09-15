@@ -69,7 +69,6 @@ def convertAP( args ):
     ap.csOnsetFrame = args.stimulusFrames[0]
     ap.usOnsetFrame = args.stimulusFrames[1]
     ap.circPad = args.circPad
-    print( "AP BIN = ", args.binFrames )
     ap.binFrames = args.binFrames
     ap.numShuffle = args.numShuffle
     ap.epsilon = args.epsilon

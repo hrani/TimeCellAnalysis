@@ -43,10 +43,15 @@ this is done.
 	code from Matlab.
 	Please see README in TcPy for details on running demos etc.
 	- rho-matlab: Time Cell analysis Matlab libraries.
+	Please see README in rho-matlab for details on running demos.
 
 
 ## Installation:
 	pip install TimeCellAnalysis
+
+Following this command, the actual files will be placed in
+
+	~/.local/bin/TimeCellAnalysis
 
 
 or
@@ -54,4 +59,11 @@ or
 	git clone TimeCellAnalysis
 	pip install h5py
 	pip install pybind11
+	pip install matplotlib
 	make
+
+
+Following this command, the actual files will be placed in 
+
+	./TimeCellAnalysis
+

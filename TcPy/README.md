@@ -3,7 +3,7 @@
 
 ## Overview
 
-This repository contains the Matlab, Python and related files for 
+This repository contains the Matlab(R), Python and related files for 
 Time Cell Analysis,
 
 This is from a forthcoming paper: 
@@ -13,21 +13,29 @@ Synthetic Data Resource and Benchmarks for Time Cell Analysis and Detection Algo
 in preparation.
 
 The current directory, **TcPy**, has the Python demos and code (including 
-pybind11/C++ code) for the tc module for Python. 
+pybind11/C++ code) for the tc module for Python. This needs gcc 7.3 or higher.
 
 ## Examples:
 ---------
 For the impatient, once you have installed the files, here are some things
 to do from the TcPy directory. In the examples below, the input data files
-are Matlab version 7.3 files, organized as `[dataset][frame#][trial#][cell#]`
+are Matlab(R) version 7.3 files, organized as `[dataset][frame#][trial#][cell#]`
 These files can be generated from data analysis code, or from the synthetic
-data generation programs developed in this project.
+data generation programs developed in this project. We provide an example
+data file named *sample_synth_data.mat*
 
-Here are the key script calls:
+Here are the key script calls. Python must be Python 3.
 
-> python ti_demo.py *filename*
+From within the repository:
 
-This will run a partial analysis for time-cells in the specified file,
+> python ti_demo.py ../sampledata/sample_synth_data.mat
+
+From any other location, using specified filename:
+
+> ti_demo *filename*
+
+This will run an analysis for time-cells in the specified file,
+*sample_synth_data.mat*
 and report something like this:
 
 ```
@@ -42,12 +50,10 @@ Number of time cells classified by each method, for each dataset
 Dataset    #SigMean    #sigBoot     #sigBoth
    0          65          67          64
    1          64          67          63
-   2          66          67          64
-   3          44          17          13
 ...
 ```
 
-Similar output is obtained from *r2b_demo.py*
+Output with somewhat different numbers is obtained from *r2b_demo.py*
 
 A few additional stats are reported by *peq_demo.py*
 
@@ -65,7 +71,6 @@ methods handle the data. Output is like this:
 idx | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp | tn fn fp tp
   0 | 68  2  0 65 | 67  1  1 66 | 68  3  0 64 | 64  1  4 66 | 68  1  0 66 | 55 32 13 35
   1 | 67  5  1 62 | 68  0  0 67 | 68  5  0 62 | 65  0  3 67 | 68  1  0 66 | 44 35 24 32
-  2 | 67  2  1 65 | 68  1  0 66 | 68  3  0 64 | 61  2  7 65 | 68  2  0 65 | 59 24  9 43
 ...
 ```
 
@@ -135,7 +140,6 @@ the synthetic data.
 ```
 0,68,2,0,65,67,1,1,66,68,3,0,64,64,1,4,66,29,1,39,66
 1,67,4,1,63,68,0,0,67,68,4,0,63,63,0,5,67,29,0,39,67
-2,67,2,1,65,66,1,2,66,68,3,0,64,61,2,7,65,41,2,27,65
 ```
 
 The comma-separated entries are:
@@ -170,16 +174,14 @@ The comma-separated entries are:
 
 ### Matlab(R) demo scripts:
 
-We have placed a few Matlab demo scripts
-here to show how the synthetic data files are generated, and to show how
-the analysis can be run using Python wrapper functions called from Matlab.
+The matlab scripts are in the rho-matlab directory in this respository.
+Here there is just one demo script to show how 
+the analysis can be run using Python wrapper functions called from Matlab (R).
 
 run_batch_analysis.m	: Runs a partial batch analysis on a datafile,
 	output is printed on console.
 
-generateSyntheticData.m	: Generates a MATLAB data file with synthetic data
-	representing time cell activity, according to several control 
-	parameters.
+> matlab -nodisplay -r "run_batch_analysis"
 
 
 ### Files to build the pyBind11 module
@@ -330,12 +332,13 @@ These are additional parameters for the PEQ method from Ananthamurthy and Bhalla
 
 
 ## Installation:
-	pip install TimeCellAnalysys
+	pip install TimeCellAnalysis
 
 
 or
 
-	git clone TimeCellAnalysis
+	git clone https://github.com/BhallaLab/TimeCellAnalysis.git
 	pip install h5py
 	pip install pybind11
+	cd TimeCellAnalysis/TcPy
 	make
