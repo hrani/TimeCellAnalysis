@@ -30,20 +30,26 @@ cells are time-cells, and we can control parameters such as noise, background
 activity, jitter, and hit trial ratio (fraction of trials in which the time 
 cell was active). 
 Second, we implemented and extended published time-cell analysis algorithms. 
-While some of the original algorithms were in Matlab, we have re-implemented 
-key ones in C++ using the pybind11 libraries to provide a simple Python 
-interface. This gives us considerable improvements in speed and memory 
-efficiency, at the cost of some complexity in the code.
+While some of the original published algorithms were in Matlab, we have 
+re-implemented key ones in C++ using the pybind11 libraries to provide a 
+simple Python interface. This gives us considerable improvements in speed and 
+memory efficiency, at the cost of some complexity in the code.
 The Python functions can also be accessed via Matlab, and we illustrate how
 this is done.
 
 ## Directories:
 
 	- TcPy: Time Cell analysis Python demos, pybind11 and example driver 
-	code from Matlab.
+	code from Matlab. Primary Author: U.S. Bhalla
 	Please see README in TcPy for details on running demos etc.
+
 	- rho-matlab: Time Cell analysis Matlab libraries.
 	Please see README in rho-matlab for details on running demos.
+	The rho-matlab directory is cloned from 
+		https://github.com/ananthamurthy/rho-matlab
+		commit number 1f0d765
+		In it, the paperFigures submodule is from commit 65b69de
+	and the author of all the code in it is K. Ananthamurthy.
 
 
 ## Installation:
@@ -52,6 +58,7 @@ this is done.
 Following this command, the actual files will be placed in
 
 	~/.local/bin/TimeCellAnalysis
+
 
 
 or
@@ -67,3 +74,6 @@ Following this command, the actual files will be placed in
 
 	./TimeCellAnalysis
 
+To run the demos from the command line you should navigate to the installation
+directory and either the TcPy or rho-matlab subdirectories respectively, as
+indicated in their respective README files.
